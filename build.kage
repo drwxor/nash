@@ -1,0 +1,27 @@
+tool nasm = nasm;
+tool ld = mold;
+
+instruction nasm {
+    command: "nasm -f elf64 $in -o $out";
+    description: "NASM $in";
+}
+
+instruction link {
+    command: "$(ld) --static --no-build-id -o $out $in";
+    description: "LD $out";
+}
+
+array objects = [];
+
+compile nasm src/string.asm > build/objects/string.o | objects;
+compile nasm src/syscall.asm > build/objects/syscall.o | objects;
+compile nasm src/terminal.asm > build/objects/terminal.o | objects;
+
+compile nasm src/commands/clear.asm > build/objects/commands/clear.o | objects;
+compile nasm src/commands/exit.asm > build/objects/commands/exit.o | objects;
+compile nasm src/commands/echo.asm > build/objects/commands/echo.o | objects;
+compile nasm src/commands/printf.asm > build/objects/commands/printf.o | objects;
+
+compile nasm src/main.asm > build/objects/main.o | objects;
+
+link objects > build/nash;
